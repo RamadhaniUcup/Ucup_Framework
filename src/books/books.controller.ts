@@ -1,7 +1,6 @@
-import { Controller, Get, Param, Post, Body, Put, Delete} from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Put, Delete } from '@nestjs/common';
 import { BooksService } from './books.service.js';
 import { createBookDto } from './dto/create-book-dto.js';
-
 
 @Controller('books')
 export class BooksController {
@@ -15,35 +14,27 @@ export class BooksController {
   // Mengambil data buku berdasarkan ID.
   @Get(':id')
   getBookById(@Param('id') id: string) {
-    
-    // logic untuk mengambil data buku berdasarkan ID dari database
-    return this.booksService.findOne(Number(id));
-    
+    // Diubah: Langsung kirim 'id' tanpa Number() karena database menggunakan UUID (string)
+    return this.booksService.findOne(id);
   }
 
-  // menampilkan data buku baru ke database
-   @Post()
-   createBook(@Body() book:  createBookDto) {
-
-    // logic untuk menyimpan data buku baru ke database
+  // Menampilkan data buku baru ke database
+  @Post()
+  createBook(@Body() book: createBookDto) {
     return this.booksService.create(book);
-    
-   
-}
-// mengubah data buku berdasarkan ID
-@Put(':id')
+  }
+
+  // Mengubah data buku berdasarkan ID
+  @Put(':id')
   updateBook(@Param('id') id: string, @Body() book: createBookDto) {
+    // Diubah: Langsung kirim 'id' tanpa Number()
+    return this.booksService.update(id, book);
+  }
 
-    //logic untuk mengupdate data buku berdasarkan ID dari database
-    return this.booksService.update(Number(id), book); 
-}
-
-
-@Delete(':id')
+  // Menghapus data buku berdasarkan ID
+  @Delete(':id')
   deleteBook(@Param('id') id: string) {
-    
-    //logic untuk menghapus data buku berdasarkan ID dari database
-    return this.booksService.delete(Number(id));
-}
-
+    // Diubah: Langsung kirim 'id' tanpa Number()
+    return this.booksService.delete(id);
+  }
 }
