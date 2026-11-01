@@ -1,3 +1,7 @@
+import { IsEmail, IsNotEmpty } from 'class-validator';
+
 export class ForgotPasswordDto {
-  email: string;
+  @IsNotEmpty({ message: 'Email harus diisi' })
+  @IsEmail({}, { message: 'Email tidak valid' })
+  readonly email: string;
 }
