@@ -1,49 +1,174 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Book } from './entities/book-entity.js';
-import { createBookDto } from './dto/create-book-dto.js';
+
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm'; // DIUBAH: Import langsung dari 'typeorm' 
+import { Repository } from 'typeorm';
+
+import { Book } from './book-entity.js';
+import { createBookDto } from './dto/create-book-dto.js';
+import { Author } from '../entity/author.entity.js';
+import { Publisher } from '../entity/publisher.entity.js';
+import { Category } from '../entity/categories.entity.js';
 
 @Injectable()
 export class BooksService {
   constructor(
     @InjectRepository(Book)
     private readonly bookRepository: Repository<Book>,
+
+    @InjectRepository(Author)
+    private readonly authorRepository: Repository<Author>,
+
+    @InjectRepository(Publisher)
+    private readonly publisherRepository: Repository<Publisher>,
+
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
   ) {}
 
   // Mengambil semua data buku
   async findAll(): Promise<Book[]> {
     return this.bookRepository.find({
-      order: { createdAt: 'DESC' },
+      relations: {
+        author: true,
+        publisher: true,
+        category: true,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
     });
   }
-  
+
   // Mengambil data buku berdasarkan ID
   async findOne(id: string): Promise<Book> {
-    const book = await this.bookRepository.findOneBy({ id });
-    // Jika buku tidak ditemukan
+    const book = await this.bookRepository.findOne({
+      where: { id },
+      relations: {
+        author: true,
+        publisher: true,
+        category: true,
+      },
+    });
+
     if (!book) {
-      throw new NotFoundException(`Book with ID ${id} not found`);
+      throw new NotFoundException(
+        `Buku dengan ID ${id} tidak ditemukan`,
+      );
     }
+
     return book;
   }
 
-  // Menyimpan data buku ke database
+  // Menambahkan buku baru
   async create(bookDto: createBookDto): Promise<Book> {
-    const newBook = this.bookRepository.create(bookDto);
-    return this.bookRepository.save(newBook);
+    const author = await this.authorRepository.findOneBy({
+      id: bookDto.authorId,
+    });
+
+    const publisher = await this.publisherRepository.findOneBy({
+      id: bookDto.publisherId,
+    });
+
+    const category = await this.categoryRepository.findOneBy({
+      id: bookDto.categoryId,
+    });
+
+    if (!author) {
+      throw new NotFoundException('Penulis tidak ditemukan');
+    }
+
+    if (!publisher) {
+      throw new NotFoundException('Penerbit tidak ditemukan');
+    }
+
+    if (!category) {
+      throw new NotFoundException('Kategori tidak ditemukan');
+    }
+
+    const newBook = this.bookRepository.create({
+      name: bookDto.name,
+      authorLegacy: author.name,
+      isbn: bookDto.isbn,
+      publishedYear: bookDto.publishedYear,
+      price: 0,
+      stock: 0,
+      isAvailable: true,
+      author,
+      publisher,
+      category,
+    });
+
+    try {
+      const savedBook = await this.bookRepository.save(newBook);
+      return this.findOne(savedBook.id);
+    } catch (error) {
+      if ((error as { code?: string }).code === '23505') {
+        throw new BadRequestException('ISBN sudah terdaftar');
+      }
+
+      throw error;
+    }
   }
 
-  // Mengupdate data buku berdasarkan ID
-  async update(id: string, bookDto: createBookDto): Promise<Book> {
+  // Memperbarui data buku
+  async update(
+    id: string,
+    bookDto: createBookDto,
+  ): Promise<Book> {
     const book = await this.findOne(id);
-    Object.assign(book, bookDto);
-    return this.bookRepository.save(book);
+
+    const author = await this.authorRepository.findOneBy({
+      id: bookDto.authorId,
+    });
+
+    const publisher = await this.publisherRepository.findOneBy({
+      id: bookDto.publisherId,
+    });
+
+    const category = await this.categoryRepository.findOneBy({
+      id: bookDto.categoryId,
+    });
+
+    if (!author) {
+      throw new NotFoundException('Penulis tidak ditemukan');
+    }
+
+    if (!publisher) {
+      throw new NotFoundException('Penerbit tidak ditemukan');
+    }
+
+    if (!category) {
+      throw new NotFoundException('Kategori tidak ditemukan');
+    }
+
+    book.name = bookDto.name;
+    book.authorLegacy = author.name;
+    book.isbn = bookDto.isbn;
+    book.publishedYear = bookDto.publishedYear;
+    book.author = author;
+    book.publisher = publisher;
+    book.category = category;
+
+    try {
+      await this.bookRepository.save(book);
+    } catch (error) {
+      if ((error as { code?: string }).code === '23505') {
+        throw new BadRequestException('ISBN sudah terdaftar');
+      }
+
+      throw error;
+    }
+
+    return this.findOne(book.id);
   }
 
-  // Menghapus data buku berdasarkan ID
+  // Menghapus buku secara soft delete
   async delete(id: string): Promise<void> {
     const book = await this.findOne(id);
-    await this.bookRepository.remove(book);
+    await this.bookRepository.softRemove(book);
   }
 }

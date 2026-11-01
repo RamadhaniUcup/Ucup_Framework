@@ -5,6 +5,9 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { BooksModule } from './books/books.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { CategoriesModule } from './categories/categories.module.js';
+import { PublishersModule } from './publishers/publishers.module.js';
+import { AuthorsModule } from './authors/authors.module.js';
 import Joi from 'joi';
 
 @Module({
@@ -36,13 +39,16 @@ import Joi from 'joi';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
         autoLoadEntities: true, // Otomatis memuat entitas seperti Book tanpa daftar manual
-        synchronize: true,      // Setel ke false jika sudah masuk tahap production
+        synchronize: false,      // Setel ke false jika sudah masuk tahap production
       }),
       inject: [ConfigService],
     }),
 
     BooksModule,
     AuthModule,
+    CategoriesModule,
+    PublishersModule,
+    AuthorsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
