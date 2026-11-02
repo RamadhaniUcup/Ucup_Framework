@@ -10,9 +10,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import { Author } from '../entity/author.entity.js';
-import { Category } from '../entity/categories.entity.js';
-import { Publisher } from '../entity/publisher.entity.js';
+import { Author } from '../../authors/entities/author.entity.js';
+import { Category } from '../../categories/entities/categories.entity.js';
+import { Publisher } from '../../publishers/entities/publisher.entity.js';
 
 @Entity('books')
 export class Book {

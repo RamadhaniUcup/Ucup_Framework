@@ -10,9 +10,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import { Customer } from './customer.entity.js';
-import { CustomerAddress } from './customer-address.entity.js';
-import { OrderItem } from './order-item.entity.js';
+import { Customer } from '../../customers/entities/customer.entity.js';
+import { CustomerAddress } from '../../customer-addresses/entities/customer-address.entity.js';
+import { OrderItem } from '../../order-items/entities/order-item.entity.js';
 
 @Entity('orders')
 export class Order {

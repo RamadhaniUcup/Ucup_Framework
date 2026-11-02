@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthorsService } from './authors.service.js';
 import { AuthorsController } from './authors.controller.js';
-import { Author } from '../entity/author.entity.js';
+import { Author } from './entities/author.entity.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Author])],

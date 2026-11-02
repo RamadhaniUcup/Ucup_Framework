@@ -1,18 +1,26 @@
+
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm'; // Ditambahkan
+import { TypeOrmModule } from '@nestjs/typeorm';
+import Joi from 'joi';
+
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+
 import { BooksModule } from './books/books.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
 import { PublishersModule } from './publishers/publishers.module.js';
 import { AuthorsModule } from './authors/authors.module.js';
-import Joi from 'joi';
+import { CustomersModule } from './customers/customers.module.js';
+import { CustomerAddressesModule } from './customer-addresses/customer-addresses.module.js';
+import { OrdersModule } from './orders/orders.module.js';
+import { OrderItemsModule } from './order-items/order-items.module.js';
+import { PaymentsModule } from './payments/payments.module.js';
+import { ShipmentsModule } from './shipments/shipments.module.js';
 
 @Module({
   imports: [
-    // 1. Konfigurasi Environment Variables
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
@@ -28,18 +36,17 @@ import Joi from 'joi';
       }),
     }),
 
-    // 2. Ditambahkan: Konfigurasi Koneksi Database TypeORM
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        type: 'postgres', // Ubah ke 'mysql' atau tipe db lain jika kamu tidak pakai PostgreSQL
+        type: 'postgres',
         host: configService.get<string>('DB_HOST'),
         port: configService.get<number>('DB_PORT'),
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
-        autoLoadEntities: true, // Otomatis memuat entitas seperti Book tanpa daftar manual
-        synchronize: false,      // Setel ke false jika sudah masuk tahap production
+        autoLoadEntities: true,
+        synchronize: false,
       }),
       inject: [ConfigService],
     }),
@@ -49,6 +56,12 @@ import Joi from 'joi';
     CategoriesModule,
     PublishersModule,
     AuthorsModule,
+    CustomersModule,
+    CustomerAddressesModule,
+    OrdersModule,
+    OrderItemsModule,
+    PaymentsModule,
+    ShipmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

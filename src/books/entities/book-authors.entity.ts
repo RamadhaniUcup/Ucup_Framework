@@ -6,8 +6,8 @@ import {
   JoinColumn,
 } from 'typeorm';
 
-import { Book } from '../books/book-entity.js';
-import { Author } from './author.entity.js';
+import { Book } from './book-entity.js';
+import { Author } from '../../authors/entities/author.entity.js';
 
 @Entity('book_authors')
 export class BookAuthor {

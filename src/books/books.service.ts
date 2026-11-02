@@ -7,11 +7,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { Book } from './book-entity.js';
+import { Book } from './entities/book-entity.js';
 import { createBookDto } from './dto/create-book-dto.js';
-import { Author } from '../entity/author.entity.js';
-import { Publisher } from '../entity/publisher.entity.js';
-import { Category } from '../entity/categories.entity.js';
+import { Author } from '../authors/entities/author.entity.js';
+import { Publisher } from '../publishers/entities/publisher.entity.js';
+import { Category } from '../categories/entities/categories.entity.js';
 
 @Injectable()
 export class BooksService {

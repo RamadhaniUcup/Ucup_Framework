@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { Author } from '../entity/author.entity.js';
+import { Author } from './entities/author.entity.js';
 import { CreateAuthorDto } from './dto/create-author.dto.js';
 import { UpdateAuthorDto } from './dto/update-author.dto.js';
 
